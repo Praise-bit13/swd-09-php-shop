@@ -26,14 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Your session expired. Refresh the page and try again.';
     }
 
-    if ($old['name'] === '' || mb_strlen($old['name']) > 150) {
-        $errors[] = 'Enter your name (up to 150 characters).';
+    if ($old['name'] === '' || mb_strlen($old['name']) > 120) {
+        $errors[] = 'Enter your name (up to 120 characters).';
     }
-    if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL) || strlen($old['email']) > 254) {
+    if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL) || strlen($old['email']) > 160) {
         $errors[] = 'Enter a valid email address.';
     }
-    if ($old['phone'] === '' || mb_strlen($old['phone']) > 40) {
-        $errors[] = 'Enter a phone number (up to 40 characters).';
+    if ($old['phone'] === '' || mb_strlen($old['phone']) > 20) {
+        $errors[] = 'Enter a phone number (up to 20 characters).';
     }
     if ($old['address'] === '' || mb_strlen($old['address']) > 1000) {
         $errors[] = 'Enter a delivery address (up to 1,000 characters).';
@@ -96,15 +96,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderTotal = number_format($totalKobo / 100, 2, '.', '');
             $reference = 'ORD-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(2)));
             $insertOrder = $pdo->prepare(
-                'INSERT INTO orders (reference, customer_name, email, phone, delivery_address, total, status)
-                 VALUES (:reference, :customer_name, :email, :phone, :delivery_address, :total, :status)'
+                'INSERT INTO orders (reference, customer_name, email, phone, address, total, status)
+                 VALUES (:reference, :customer_name, :email, :phone, :address, :total, :status)'
             );
             $insertOrder->execute([
                 'reference' => $reference,
                 'customer_name' => $old['name'],
                 'email' => $old['email'],
                 'phone' => $old['phone'],
-                'delivery_address' => $old['address'],
+                'address' => $old['address'],
                 'total' => $orderTotal,
                 'status' => 'pending',
             ]);
@@ -204,16 +204,16 @@ require __DIR__ . '/partials/header.php';
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                 <label class="checkout-field">
                     Full name
-                    <input class="field" type="text" name="name" value="<?= e($old['name']) ?>" maxlength="150" autocomplete="name" required>
+                    <input class="field" type="text" name="name" value="<?= e($old['name']) ?>" maxlength="120" autocomplete="name" required>
                 </label>
                 <div class="checkout-field-grid">
                     <label class="checkout-field">
                         Email address
-                        <input class="field" type="email" name="email" value="<?= e($old['email']) ?>" maxlength="254" autocomplete="email" required>
+                        <input class="field" type="email" name="email" value="<?= e($old['email']) ?>" maxlength="160" autocomplete="email" required>
                     </label>
                     <label class="checkout-field">
                         Phone number
-                        <input class="field" type="tel" name="phone" value="<?= e($old['phone']) ?>" maxlength="40" autocomplete="tel" required>
+                        <input class="field" type="tel" name="phone" value="<?= e($old['phone']) ?>" maxlength="20" autocomplete="tel" required>
                     </label>
                 </div>
                 <label class="checkout-field">

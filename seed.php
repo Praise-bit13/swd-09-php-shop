@@ -34,6 +34,48 @@ $catalog = [
         ['Acacia Serving Board', 'acacia-serving-board', 'A naturally grained acacia board for serving bread, cheese, and small bites with an easy, timeless style.', 21500, 6],
         ['Pour-Over Coffee Dripper', 'pour-over-coffee-dripper', 'A reusable ceramic pour-over dripper for a balanced cup and a slower, more satisfying morning ritual.', 16800, 10],
     ],
+    'Phones' => [
+        ['Smartphone 128GB', 'smartphone-128gb', 'A responsive everyday smartphone with a vivid display, dependable all-day battery, dual-camera system, and 128GB of storage for photos and apps.', 249900, 7],
+        ['20,000mAh Power Bank', '20000mah-power-bank', 'A high-capacity portable power bank with dual USB outputs, USB-C input, and built-in charge indicators for longer days away from a wall socket.', 24500, 15],
+        ['Shockproof Phone Case', 'shockproof-phone-case', 'A flexible, grippy phone case with raised edges around the screen and camera to help protect against everyday bumps and scratches.', 7500, 22],
+    ],
+    'Laptops' => [
+        ['14-inch Everyday Laptop', '14-inch-everyday-laptop', 'A lightweight 14-inch laptop with an 8GB memory and 256GB solid-state drive configuration suited to study, office work, and everyday browsing.', 429000, 4],
+        ['Padded 14-inch Laptop Sleeve', 'padded-14-inch-laptop-sleeve', 'A slim padded sleeve with a soft lining, secure zip closure, and front document pocket for carrying a laptop between home, class, and work.', 18500, 10],
+        ['USB-C Laptop Dock', 'usb-c-laptop-dock', 'A compact USB-C dock that adds HDMI, USB-A, and card-reader connections to compatible laptops while keeping your desk setup tidy.', 35900, 8],
+    ],
+    'Accessories' => [
+        ['Wireless Bluetooth Earbuds', 'wireless-bluetooth-earbuds', 'Comfortable true-wireless earbuds with touch controls, a pocket charging case, and a clear microphone for music and calls on the move.', 45000, 12],
+        ['Rechargeable Wireless Mouse', 'rechargeable-wireless-mouse', 'A quiet-click wireless mouse with a rechargeable battery, adjustable sensitivity, and an ergonomic shape for everyday desk work.', 12900, 15],
+        ['Braided USB-C Cable', 'braided-usb-c-cable', 'A durable one-metre braided USB-C cable for charging and data transfer, with reinforced connectors designed for everyday use.', 5900, 30],
+    ],
+];
+
+$productPhotos = [
+    'linen-cushion-cover' => '1584100936595-c0654b55a2e2',
+    'ceramic-table-vase' => '1578500494198-246f612d3b3d',
+    'woven-storage-basket' => '1590874103328-eac38a683ce7',
+    'wireless-bluetooth-speaker' => '1608043152269-423dbba4e7e1',
+    'led-desk-lamp' => '1507473885765-e6ed057f782c',
+    'usb-c-fast-charger' => '1518770660439-4636190af475',
+    'everyday-canvas-tote' => '1544816155-12df9643f363',
+    'classic-leather-wallet' => '1627123424574-724758594e93',
+    'minimalist-wristwatch' => '1523275335684-37898b6baf30',
+    'the-art-of-slow-living' => '1544947950-fa07a98d237f',
+    'daily-notes-journal' => '1517842645767-c639042777db',
+    'creative-ideas-card-set' => '1541961017774-22349e4a1262',
+    'insulated-travel-mug' => '1514228742587-6b1558fcca3d',
+    'acacia-serving-board' => '1547592180-85f173990554',
+    'pour-over-coffee-dripper' => '1495474472287-4d71bcdd2085',
+    'smartphone-128gb' => '1511707171634-5f897ff02aa9',
+    '20000mah-power-bank' => '1609091839311-d5365f9ff1c5',
+    'shockproof-phone-case' => '1598327105666-5b89351aff97',
+    '14-inch-everyday-laptop' => '1498050108023-c5249f4df085',
+    'padded-14-inch-laptop-sleeve' => '1553062407-98eeb64c6a62',
+    'usb-c-laptop-dock' => '1517336714731-489689fd1ca8',
+    'wireless-bluetooth-earbuds' => '1606220945770-b5b6c2c55bf1',
+    'rechargeable-wireless-mouse' => '1527814050087-3793815479db',
+    'braided-usb-c-cable' => '1603398938378-e54eab446dde',
 ];
 
 $pdo->beginTransaction();
@@ -47,14 +89,14 @@ $insertProduct = $pdo->prepare(
 );
 $updateProduct = $pdo->prepare(
     'UPDATE products
-     SET category_id = :category_id, name = :name, description = :description, price = :price,
-         stock = :stock, image_url = :image_url, is_active = 1
+     SET category_id = :category_id, name = :name, slug = :slug, description = :description, price = :price,
+         image_url = :image_url, is_active = 1
      WHERE id = :id'
 );
 
 $seeded = 0;
 foreach ($catalog as $categoryName => $items) {
-    $categorySlug = strtolower(str_replace(' ', '-', $categoryName));
+    $categorySlug = trim((string) preg_replace('/[^a-z0-9]+/', '-', strtolower($categoryName)), '-');
     $findCategory->execute(['slug' => $categorySlug]);
     $categoryId = $findCategory->fetchColumn();
     if ($categoryId === false) {
@@ -63,7 +105,11 @@ foreach ($catalog as $categoryName => $items) {
     }
 
     foreach ($items as [$name, $slug, $description, $price, $stock]) {
-        $imageUrl = 'https://placehold.co/600x400?text=' . rawurlencode($name);
+        if (!isset($productPhotos[$slug])) {
+            throw new LogicException('No product image is configured for ' . $slug . '.');
+        }
+        $imageUrl = 'https://images.unsplash.com/photo-' . $productPhotos[$slug]
+            . '?auto=format&fit=crop&w=800&q=85';
         $findProduct->execute(['slug' => $slug]);
         $productId = $findProduct->fetchColumn();
         $values = [
@@ -72,11 +118,11 @@ foreach ($catalog as $categoryName => $items) {
             'slug' => $slug,
             'description' => $description,
             'price' => $price,
-            'stock' => $stock,
             'image_url' => $imageUrl,
         ];
 
         if ($productId === false) {
+            $values['stock'] = $stock;
             $insertProduct->execute($values);
         } else {
             $values['id'] = (int) $productId;

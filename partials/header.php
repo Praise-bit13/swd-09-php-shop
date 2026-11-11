@@ -13,7 +13,7 @@ $pageTitle = $pageTitle ?? 'SWD Shop';
             if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
         } catch (error) {}
     </script>
-    <link rel="stylesheet" href="<?= e(site_url('assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= e(site_url('assets/style.css')) ?>?v=<?= (int) filemtime(__DIR__ . '/../assets/style.css') ?>">
     <script src="<?= e(site_url('assets/theme.js')) ?>" defer></script>
 </head>
 <body>
@@ -25,6 +25,8 @@ $pageTitle = $pageTitle ?? 'SWD Shop';
         </a>
         <nav class="header-nav" aria-label="Main navigation">
             <a href="<?= e(site_url('index.php')) ?>">Shop</a>
+            <a class="lookup-nav-link" href="<?= e(site_url('order-lookup.php')) ?>">Track order</a>
+            <a class="admin-login-nav" href="<?= e(site_url('admin/login.php')) ?>" aria-label="Admin sign in">Admin</a>
             <a class="cart-link" href="<?= e(site_url('cart.php')) ?>" aria-label="Shopping cart">
                 Cart <span class="cart-badge"><?= cart_count() ?></span>
             </a>

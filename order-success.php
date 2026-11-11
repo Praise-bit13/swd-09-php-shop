@@ -36,6 +36,7 @@ require __DIR__ . '/partials/header.php';
             <div><span>Order total</span><strong><?= e(money($order['total'])) ?></strong></div>
         </div>
         <a class="button" href="<?= e(site_url('index.php')) ?>">Continue shopping</a>
+        <p class="success-copy"><a href="<?= e(site_url('order-lookup.php')) ?>">Look up this order later &rarr;</a></p>
     </section>
 <?php else: ?>
     <div class="empty-state">

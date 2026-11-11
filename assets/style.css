@@ -64,7 +64,7 @@ h1 { margin-bottom: 10px; font-size: clamp(30px, 4vw, 46px); letter-spacing: -.0
 .product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 18px; }
 .product-card { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); transition: box-shadow .18s ease, transform .18s ease; }
 .product-card:hover { box-shadow: 0 12px 28px rgba(27, 55, 42, .09); transform: translateY(-3px); }
-.product-image-wrap { position: relative; overflow: hidden; aspect-ratio: 3 / 2; background: var(--wash); }
+.product-image-wrap { display: block; position: relative; overflow: hidden; aspect-ratio: 3 / 2; background: var(--wash); }
 .product-image { display: block; width: 100%; height: 100%; object-fit: cover; }
 .stock-badge { position: absolute; top: 12px; left: 12px; padding: 6px 9px; border-radius: 999px; background: var(--surface); color: var(--danger); font-size: 11px; font-weight: 750; box-shadow: 0 2px 8px #00000012; }
 .product-info { padding: 15px; }
@@ -143,6 +143,7 @@ h1 { margin-bottom: 10px; font-size: clamp(30px, 4vw, 46px); letter-spacing: -.0
 .back-link:hover { color: var(--green); }
 .site-footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 .footer-inner { min-height: 70px; justify-content: space-between; gap: 14px; }
+.footer-inner a:hover { color: var(--green); }
 
 @media (max-width: 900px) {
     .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -181,7 +182,13 @@ h1 { margin-bottom: 10px; font-size: clamp(30px, 4vw, 46px); letter-spacing: -.0
 @media (max-width: 380px) {
     .product-grid { grid-template-columns: 1fr; }
     .search-form { flex-wrap: wrap; }
+    .lookup-nav-link { display: none; }
 }
 
 html[data-theme="dark"] .form-error { border-color: #70413d; background: #382623; }
 html[data-theme="dark"] .cart-notice { border-color: #365543; }
+html[data-theme="dark"] .button,
+html[data-theme="dark"] .category-link.active,
+html[data-theme="dark"] .brand-mark { background: #2e6b49; color: #fff; }
+html[data-theme="dark"] .button:hover { background: #397f57; }
+html[data-theme="dark"] .button:disabled { background: #59665f; }

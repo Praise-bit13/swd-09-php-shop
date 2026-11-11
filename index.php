@@ -89,8 +89,8 @@ require __DIR__ . '/partials/header.php';
                     <?php if ((int) $product['stock'] < 1): ?><span class="stock-badge">Out of stock</span><?php endif; ?>
                 </a>
                 <div class="product-info">
-                    <?php if ($product['category_name'] !== null): ?><p class="product-category"><?= e($product['category_name']) ?></p><?php endif; ?>
                     <h2 class="product-name"><a href="<?= e(site_url('product.php')) ?>?slug=<?= rawurlencode((string) $product['slug']) ?>"><?= e($product['name']) ?></a></h2>
+                    <?php if ($product['category_name'] !== null): ?><p class="product-category"><?= e($product['category_name']) ?></p><?php endif; ?>
                     <p class="product-price"><?= e(money($product['price'])) ?></p>
                 </div>
             </article>
