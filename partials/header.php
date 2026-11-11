@@ -18,7 +18,7 @@ $pageTitle = $pageTitle ?? 'SWD Shop';
         </a>
         <nav class="header-nav" aria-label="Main navigation">
             <a href="<?= e(site_url('index.php')) ?>">Shop</a>
-            <a class="cart-link" href="<?= e(site_url('index.php')) ?>" aria-label="Shopping cart">
+            <a class="cart-link" href="<?= e(site_url('cart.php')) ?>" aria-label="Shopping cart">
                 Cart <span class="cart-badge"><?= cart_count() ?></span>
             </a>
         </nav>

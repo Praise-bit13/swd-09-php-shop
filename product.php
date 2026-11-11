@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__ . '/app/bootstrap.php';
+require __DIR__ . '/app/cart.php';
 
 $slug = is_string($_GET['slug'] ?? null) ? trim($_GET['slug']) : '';
 $statement = $pdo->prepare(
@@ -34,28 +34,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(400);
         $error = 'Your session expired. Refresh the page and try again.';
     } else {
-        $quantity = filter_var($_POST['quantity'] ?? null, FILTER_VALIDATE_INT);
+        $quantityInput = $_POST['quantity'] ?? null;
+        $quantity = is_int($quantityInput) || is_string($quantityInput)
+            ? filter_var($quantityInput, FILTER_VALIDATE_INT)
+            : false;
         if ($quantity === false || $quantity === null || $quantity < 1) {
             $error = 'Enter a valid quantity.';
         } else {
-            $stockCheck = $pdo->prepare('SELECT stock FROM products WHERE id = :id AND is_active = 1');
-            $stockCheck->execute(['id' => $product['id']]);
-            $availableStock = $stockCheck->fetchColumn();
+            $notice = cart_add((int) $product['id'], $quantity);
             $cart = $_SESSION['cart'] ?? [];
-            $currentQuantity = is_array($cart) && isset($cart[$product['id']]) ? (int) $cart[$product['id']] : 0;
-
-            if ($availableStock === false || $availableStock < 1) {
-                $error = 'This product is out of stock.';
-            } elseif ($quantity + $currentQuantity > (int) $availableStock) {
-                $error = 'Only ' . max(0, (int) $availableStock - $currentQuantity) . ' more available.';
-            } else {
-                if (!is_array($cart)) {
-                    $cart = [];
+            if (is_array($cart) && isset($cart[$product['id']])) {
+                if ($notice !== null) {
+                    cart_remember_notice($notice);
                 }
-                $cart[(int) $product['id']] = $currentQuantity + $quantity;
-                $_SESSION['cart'] = $cart;
                 header('Location: ' . site_url('product.php') . '?slug=' . rawurlencode((string) $product['slug']) . '&added=1');
                 exit;
+            } else {
+                $error = $notice ?? 'This product could not be added to your cart.';
             }
         }
     }
